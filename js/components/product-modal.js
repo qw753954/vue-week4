@@ -1,6 +1,6 @@
-export default { // 會成為 html 標籤名稱
-  template: '#productModal', // 樣板內容綁定在 <script ... id="productModal"></script> 裡
-  props: ['product', 'isNew'], // 屬性名稱
+export default {
+  template: '#productModal',
+  props: ['product', 'isNew'],
   data() {
     return {
       modal: null,
