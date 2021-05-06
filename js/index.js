@@ -22,7 +22,7 @@ createApp({
 
           // 寫入 cookie token & expires 設置有效時間
           document.cookie = `token=${token};expires=${new Date(expired)}; path=/`;
-          // window.location = 'products.html';
+          window.location = 'products.html';
         })
         .catch(err => {
           console.log(err);
