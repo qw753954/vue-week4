@@ -47,7 +47,9 @@ export default {
                 </div>
 
                 <h5><span class="badge px-3 py-2 rounded-pill bg-success">售價</span></h5>
-                <p class="h5 fw-bold ps-1 mb-4">$ {{ product.price }}</p>
+                <p class="h5 text-danger fw-bold ps-1 mb-4">
+                  $ {{ product.price }}
+                </p>
 
                 <h5><span class="badge px-3 py-2 rounded-pill bg-success">產品敘述</span></h5>
                 <p class="ps-1 mb-4">{{ product.description ? product.description : '無' }}</p>
@@ -60,7 +62,7 @@ export default {
 
                 <div class="input-group">
                     <input type="number" class="form-control w-50" min="1" v-model.number="qty">
-                    <button class="btn btn-sm btn-outline-dark" type="button"
+                    <button class="btn btn-sm btn-outline-secondary" type="button"
                     @click="$emit('emitAdd', product.id, qty)"
                     :disabled="loadingBtn.addCart == product.id">
                       <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"

@@ -176,7 +176,7 @@
         </div>
 
         <div class="mb-3">
-          <label for="name" class="form-label">姓名 <span class="fw-bold text-danger">*</span></label>
+          <label for="orderName" class="form-label">姓名 <span class="fw-bold text-danger">*</span></label>
           <v-field type="text" class="form-control" id="orderName" placeholder="請輸入姓名" name="姓名" rules="required"
             v-model="orderInfo.user.name" :class="{ 'is-invalid' : errors['姓名'] }"></v-field>
           <error-message class="invalid-feedback" name="姓名"></error-message>
@@ -212,8 +212,8 @@
             <option value="ATM">ATM</option>
             <option value="Barcode">Barcode</option>
             <option value="Credit">Credit</option>
-            <option value="ApplePay">ApplePay</option>
-            <option value="GooglePay">GooglePay</option>
+            <option value="Apple Pay">Apple Pay</option>
+            <option value="Google Pay">Google Pay</option>
           </v-field>
           <error-message class="invalid-feedback" name="付款方式"></error-message>
         </div>
