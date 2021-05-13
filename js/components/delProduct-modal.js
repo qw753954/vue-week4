@@ -13,8 +13,8 @@ export default {
 
       const api = `${apiUrl}/api/${apiPath}/admin/product/${this.item.id}`;
       axios.delete(api)
-        .then((response) => {
-          if (!response.data.success) return;
+        .then(res => {
+          if (!res.data.success) return;
 
           this.hideModal();
           this.$emit('update');

@@ -1,9 +1,9 @@
-import { createApp } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.9/vue.esm-browser.js';
+// import { createApp } from 'https://cdnjs.cloudflare.com/ajax/libs/vue/3.0.9/vue.esm-browser.js';
 import delProductModal from './components/delProduct-modal.js';
 import productModal from './components/product-modal.js';
 import pagination from './components/pagination.js';
 
-const app = createApp({
+const app = Vue.createApp({
   data() {
     return {
       products: [],

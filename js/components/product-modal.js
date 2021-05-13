@@ -22,9 +22,9 @@ export default {
 
       JsLoadingOverlay.show();
       axios[httpMethod](api, { data: this.product })
-        .then((response) => {
-          if (!response.data.success) {
-            alert(response.data.message);
+        .then(res => {
+          if (!res.data.success) {
+            alert(res.data.message);
             JsLoadingOverlay.hide();
             return;
           }

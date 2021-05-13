@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>前台</title>
+
+  <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css"
+    integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6" crossorigin="anonymous">
+</head>
+
+<style>
+  body {
+    font-size: 15px;
+  }
+
+  .form-select,
+  .form-control,
+  input::placeholder {
+    font-size: 14px !important;
+  }
+
+  td,
+  th {
+    vertical-align: middle !important;
+  }
+
+  .fa,
+  .fab,
+  .fad,
+  .fal,
+  .far,
+  .fas {
+    line-height: 1.2;
+  }
+
+  .img-size {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+  }
+
+  .modal-title {
+    font-weight: bold;
+  }
+
+  .info-tag {
+    right: 20px;
+    top: 10px;
+    font-weight: bold;
+    background: linear-gradient(#fff 60%, rgb(243, 243, 243) 40%);
+  }
+
+  .orderForm {
+    max-width: 400px;
+  }
+</style>
+
+<body>
+  <div id="app">
+    <div class="container py-4">
+      <div class="row mb-5">
+        <div class="col-xl-7">
+          <h3 class="fw-bold text-center mb-5">產品</h3>
+
+          <table class="table table-hover mb-5">
+            <thead>
+              <tr>
+                <th>圖片</th>
+                <th>商品名稱</th>
+                <th width="40%" colspan="3">價格</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="item in products" :key="item.id">
+                <td><img :src="item.image" class="rounded img-fluid img-size"></td>
+                <td>{{ item.title }}</td>
+                <td>
+                  <!-- 沒變、漲成黃牛價格就不要顯示ㄌㄅXDDDDD -->
+                  <del class="text-secondary" v-if="item.origin_price > item.price">${{ item.origin_price }}</del>
+                  <p class="h5 fw-bold mb-0">${{ item.price }}</p>
+                </td>
+                <td>{{ item.name }}</td>
+                <td>
+                  <button type="button" class="btn btn-outline-success btn-sm d-block mb-3"
+                    @click="getProductInfo(item)" :disabled="loadingBtn.info == item.id">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                      v-if="loadingBtn.info == item.id"></span>
+                    查看更多
+                  </button>
+                  <button type="button" class="btn btn-outline-danger btn-sm d-block" @click="addToCart(item.id)"
+                    :disabled="loadingBtn.addCart == item.id">
+                    <!-- https://getbootstrap.com/docs/5.0/components/spinners/ -->
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                      v-if="loadingBtn.addCart == item.id"></span>
+                    加入購物車
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <pagination :pages="pagination" @emit-change="getProduct"></pagination>
+
+        </div>
+
+        <div class="col-xl-5">
+          <h3 class="fw-bold text-center mb-5">購物車</h3>
+          <table class="table mb-5">
+            <thead>
+              <th class="text-center" width="36%">品名</th>
+              <th class="text-center" width="30%">數量</th>
+              <th class="text-center">單價</th>
+              <td></td>
+            </thead>
+            <tbody>
+              <tr v-for="item in carts" :key="item.id">
+                <td>{{ item.product.title }}</td>
+                <td>
+                  <div class="input-group">
+                    <input type="number" class="form-control" min="1" :value="item.qty">
+                    <span class="input-group-text">{{ item.product.unit }}</span>
+                  </div>
+                </td>
+                <td class="text-center">${{ item.product.price }}</td>
+                <td class="text-end">
+                  <button class="btn btn-sm btn-secondary" type="button" @click="delCartItem(item.id)"
+                    :disabled="loadingBtn.delCart == item.id">
+                    <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                      v-if="loadingBtn.delCart == item.id"></span>
+                    刪除
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+            <tfoot>
+              <tr>
+                <td class="text-end py-3" colspan="4">
+                  <div class="input-group">
+                    <input type="text" class="form-control" placeholder="請輸入優惠碼" v-model="couponCode">
+                    <button type="button" class="btn btn-danger btn-sm" @click="useCoupon">
+                      <span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"
+                        v-if="loadingBtn.coupon"></span>
+                      套用優惠碼
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <td class="text-end py-4" colspan="4">
+                  <span class="text-success">
+                    已折扣 ${{ cartsTotal != cartsFinalTotal ? cartsTotal - cartsFinalTotal : 0 }}
+                  </span>
+                  <p class="h5 fw-bold mt-2 mb-0">總計 ${{ cartsFinalTotal }}</p>
+                </td>
+              </tr>
+            </tfoot>
+          </table>
+
+        </div>
+      </div>
+
+
+      <h3 class="fw-bold text-center mb-5">訂購</h3>
+      <v-form class="orderForm mx-auto" @submit="onSubmit" v-slot="{ errors }">
+        <div class="mb-3">
+          <label for="orderEmail" class="form-label">E-mail <span class="fw-bold text-danger">*</span></label>
+          <v-field type="email" class="form-control" id="orderEmail" placeholder="請輸入 E-mail" name="E-mail"
+            rules="required|email" v-model="orderInfo.user.email" :class="{ 'is-invalid' : errors['E-mail'] }">
+          </v-field>
+          <error-message class="invalid-feedback" name="E-mail"></error-message>
+        </div>
+
+        <div class="mb-3">
+          <label for="name" class="form-label">姓名 <span class="fw-bold text-danger">*</span></label>
+          <v-field type="text" class="form-control" id="orderName" placeholder="請輸入姓名" name="姓名" rules="required"
+            v-model="orderInfo.user.name" :class="{ 'is-invalid' : errors['姓名'] }"></v-field>
+          <error-message class="invalid-feedback" name="姓名"></error-message>
+        </div>
+
+        <div class="mb-3">
+          <label for="orderTel" class="form-label">手機 <span class="fw-bold text-danger">*</span></label>
+          <v-field type="tel" class="form-control" id="orderTel" placeholder="請輸入手機號碼" name="手機" :rules="isPhone"
+            v-model="orderInfo.user.tel" :class="{ 'is-invalid' : errors['手機'] }"></v-field>
+          <error-message class="invalid-feedback" name="手機"></error-message>
+        </div>
+
+        <div class="mb-3">
+          <label for="orderRegion" class="form-label">區域 <span class="fw-bold text-danger">*</span></label>
+          <v-field type="text" id="orderRegion" class="form-control" name="區域" placeholder="請輸入區域" rules="required"
+            v-model="orderInfo.user.region" :class="{ 'is-invalid' : errors['區域'] }"></v-field>
+          <error-message class="invalid-feedback" name="區域"></error-message>
+        </div>
+
+        <div class="mb-3">
+          <label for="orderAddress" class="form-label">地址 <span class="fw-bold text-danger">*</span></label>
+          <v-field type="text" id="orderAddress" class="form-control" name="地址" placeholder="請輸入地址" rules="required"
+            v-model="orderInfo.user.address" :class="{ 'is-invalid' : errors['地址'] }"></v-field>
+          <error-message class="invalid-feedback" name="地址"></error-message>
+        </div>
+
+        <div class="mb-3">
+          <label for="orderPay" class="form-label">付款方式 <span class="fw-bold text-danger">*</span></label>
+          <v-field id="orderPay" class="form-select" name="付款方式" rules="required" as="select"
+            v-model="orderInfo.user.payment" :class="{ 'is-invalid' : errors['付款方式'] }">
+            <option value="" hidden disabled>請選擇付款方式</option>
+            <option value="WebATM">WebATM</option>
+            <option value="ATM">ATM</option>
+            <option value="Barcode">Barcode</option>
+            <option value="Credit">Credit</option>
+            <option value="ApplePay">ApplePay</option>
+            <option value="GooglePay">GooglePay</option>
+          </v-field>
+          <error-message class="invalid-feedback" name="付款方式"></error-message>
+        </div>
+
+        <div class="mb-3">
+          <label for="orderMsg" class="form-label">留言</label>
+          <textarea class="form-control" id="orderMsg" rows="4" placeholder="有任何想對我們說的話嗎？"
+            v-model="orderInfo.message"></textarea>
+        </div>
+
+        <div class="text-center">
+          <button class="btn btn-sm btn-success" :disabled="Object.keys(errors).length != 0">送出訂單</button>
+        </div>
+      </v-form>
+
+    </div>
+
+
+    <!-- 元件 -->
+    <product-info-modal ref="productInfoModal" :product="tempProduct" :loading-btn="loadingBtn" @emit-add="addToCart">
+    </product-info-modal>
+    <operate-status-modal ref="operateStatusModal" :msg="msg" :is-successful="isSuccessful"></operate-status-modal>
+
+  </div>
+
+
+
+
+  <!-- Vue -->
+  <script src="https://unpkg.com/vue@next"></script>
+
+  <!-- axios -->
+  <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+
+  <!-- bootstrap -->
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"
+    integrity="sha384-SR1sx49pcuLnqZUnnPwx6FCym0wLsk5JZuNx2bPPENzswTNFaQU1RDvt3wT4gWFG"
+    crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.min.js"
+    integrity="sha384-j0CNLUeiqtyaRmlzUHCPZ+Gy5fQu0dQ6eZ/xAww941Ai1SxSY+0EQqNXNE6DZiVc"
+    crossorigin="anonymous"></script>
+
+  <!-- veeValidate -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/vee-validate/4.1.17/vee-validate.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@vee-validate/i18n@4.1.17/dist/vee-validate-i18n.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@vee-validate/rules@4.1.17/dist/vee-validate-rules.min.js"></script>
+
+  <!-- 自定義 -->
+  <script src="./js/config.js"></script>
+  <script src="./js/front.js" type="module"></script>
+
+</body>
+
+</html>
