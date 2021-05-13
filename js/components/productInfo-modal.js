@@ -15,6 +15,7 @@ export default {
 
   methods: {
     openModal() {
+      this.qty = 1;
       this.modal.show();
     },
     closeModal() {
@@ -35,7 +36,7 @@ export default {
           <div class="modal-body position-relative">
             <div class="row">
               <div class="col-xl-5">
-                <img :src="product.image" :alt="product.title" class="img-fluid rounded mt-4 mt-xl-0">
+                <img :src="product.image" :alt="product.title" class="img-fluid rounded d-block mx-auto my-4 my-xl-0">
               </div>
               <div class="col-xl-7">
 
